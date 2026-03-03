@@ -82,8 +82,7 @@ pub struct InitConfig {
     pub retry_config: RetryConfig,
     /// Recovery configuration
     pub recovery_config: RecoveryConfig,
-    /// Staking configuration for proposals
-    pub staking_config: StakingConfig,
+    // pub staking_config: StakingConfig, // Feature incomplete
 }
 
 /// Vault configuration
@@ -124,8 +123,7 @@ pub struct Config {
     pub retry_config: RetryConfig,
     /// Recovery configuration
     pub recovery_config: RecoveryConfig,
-    /// Staking configuration for proposals
-    pub staking_config: StakingConfig,
+    // pub staking_config: StakingConfig, // Feature incomplete
 }
 
 /// Audit record for a cancelled proposal
@@ -174,23 +172,12 @@ pub enum ThresholdStrategy {
 pub enum VotingStrategy {
     /// Original behavior: approval count must satisfy threshold strategy.
     Simple,
-    /// Sum of voting-token balances of approvers must meet required_weight.
-    Weighted {
-        governance_token: Address,
-        required_weight: i128,
-    },
-    /// Sum of sqrt(balance) for each approver must meet required_voice_credits.
-    Quadratic {
-        governance_token: Address,
-        required_voice_credits: u32,
-    },
-    /// Approval conviction grows with time since each approval was cast.
-    /// Each approval starts at 1 point; every `growth_period` ledgers it gains +1,
-    /// capped at +3 bonus (max 4 points per approval).
-    Conviction {
-        required_conviction: u32,
-        growth_period: u64,
-    },
+    /// Token-weighted voting (simplified)
+    Weighted,
+    /// Quadratic voting (simplified)
+    Quadratic,
+    /// Conviction voting (simplified)
+    Conviction,
 }
 
 /// Amount-based threshold tier
@@ -270,6 +257,26 @@ pub struct DelegatedPermission {
     pub expires_at: u64,
 }
 
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct Delegation {
+    pub delegator: Address,
+    pub delegate: Address,
+    pub created_at: u64,
+    pub expiry_ledger: u64,
+    pub is_active: bool,
+}
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct DelegationHistory {
+    pub id: u64,
+    pub delegator: Address,
+    pub previous_delegate: Address,
+    pub new_delegate: Address,
+    pub changed_at: u64,
+}
+
 /// The lifecycle states of a proposal.
 #[contracttype]
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -289,6 +296,8 @@ pub enum ProposalStatus {
     Cancelled = 5,
     /// Approved and scheduled for future execution at a specific time.
     Scheduled = 6,
+    /// Vetoed by a veto address
+    Vetoed = 7,
 }
 
 /// Proposal priority level for queue ordering
@@ -603,6 +612,46 @@ pub struct GasConfig {
     pub condition_cost: u64,
 }
 
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct StakingConfig {
+    pub enabled: bool,
+    pub min_amount: i128,
+    pub base_stake_bps: u32,
+    pub max_stake_amount: i128,
+    pub reputation_discount_threshold: u32,
+    pub reputation_discount_percentage: u32,
+    pub slash_percentage: u32,
+}
+
+impl Default for StakingConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            min_amount: 0,
+            base_stake_bps: 100,
+            max_stake_amount: i128::MAX,
+            reputation_discount_threshold: 900,
+            reputation_discount_percentage: 0,
+            slash_percentage: 50,
+        }
+    }
+}
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct StakeRecord {
+    pub proposal_id: u64,
+    pub staker: Address,
+    pub token: Address,
+    pub amount: i128,
+    pub locked_at: u64,
+    pub refunded: bool,
+    pub slashed: bool,
+    pub slashed_amount: i128,
+    pub released_at: u64,
+}
+
 impl Default for GasConfig {
     fn default() -> Self {
         GasConfig {
@@ -757,31 +806,7 @@ pub struct AuditEntry {
     /// Hash of this entry
     pub hash: u64,
 }
-
-/// Recipient list mode
-#[contracttype]
-#[derive(Clone, Debug, PartialEq, Eq)]
-#[repr(u32)]
-pub enum ListMode {
-    Disabled = 0,
-    Whitelist = 1,
-    Blacklist = 2,
-}
-
 /// Comment on a proposal
-#[contracttype]
-#[derive(Clone, Debug)]
-pub struct Comment {
-    pub id: u64,
-    pub proposal_id: u64,
-    pub author: Address,
-    pub text: Symbol,
-    pub parent_id: u64,
-    pub created_at: u64,
-    pub edited_at: u64,
-}
-
-// ============================================================================
 // Proposal Templates (Issue: feature/contract-templates)
 // ============================================================================
 
@@ -1495,4 +1520,88 @@ pub struct FeeCalculation {
     pub fee_bps: u32,
     /// Whether reputation discount was applied
     pub reputation_discount_applied: bool,
+}
+
+// ============================================================================
+// Execution Snapshot (for rollback support)
+// ============================================================================
+
+/// Snapshot of proposal state before execution
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct ExecutionSnapshot {
+    /// The proposal at time of execution
+    pub proposal: Proposal,
+    /// Whether it was in priority queue
+    pub was_in_priority_queue: bool,
+}
+
+// ============================================================================
+// Batch Operations
+// ============================================================================
+
+/// Single operation in a batch transaction
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct BatchOperation {
+    /// Recipient address
+    pub recipient: Address,
+    /// Token contract address
+    pub token: Address,
+    /// Amount to transfer
+    pub amount: i128,
+}
+
+/// Details of a transfer
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct TransferDetails {
+    /// Recipient address
+    pub recipient: Address,
+    /// Token contract address
+    pub token: Address,
+    /// Amount to transfer
+    pub amount: i128,
+}
+
+/// Status of a batch transaction
+#[contracttype]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum BatchStatus {
+    Pending,
+    Executing,
+    Completed,
+    RolledBack,
+}
+
+/// Batch transaction containing multiple operations
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct BatchTransaction {
+    /// Unique batch ID
+    pub id: u64,
+    /// Creator of the batch
+    pub creator: Address,
+    /// List of operations
+    pub operations: Vec<BatchOperation>,
+    /// Current status
+    pub status: BatchStatus,
+    /// Creation timestamp
+    pub created_at: u64,
+    /// Optional memo
+    pub memo: Symbol,
+}
+
+/// Result of batch execution
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct BatchExecutionResult {
+    /// Batch ID
+    pub batch_id: u64,
+    /// Whether all operations succeeded
+    pub success: bool,
+    /// Number of successful operations
+    pub successful_ops: u32,
+    /// Number of failed operations
+    pub failed_ops: u32,
 }

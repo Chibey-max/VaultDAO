@@ -99,6 +99,44 @@ pub fn emit_proposal_executed(
     );
 }
 
+pub fn emit_proposal_expired(env: &Env, proposal_id: u64, expires_at: u64) {
+    env.events().publish(
+        (Symbol::new(env, "proposal_expired"), proposal_id),
+        expires_at,
+    );
+}
+
+pub fn emit_proposal_deadline_rejected(env: &Env, proposal_id: u64, voting_deadline: u64) {
+    env.events().publish(
+        (Symbol::new(env, "proposal_deadline_rejected"), proposal_id),
+        voting_deadline,
+    );
+}
+
+pub fn emit_delegated_vote(
+    env: &Env,
+    proposal_id: u64,
+    effective_voter: &Address,
+    signer: &Address,
+) {
+    env.events().publish(
+        (Symbol::new(env, "delegated_vote"), proposal_id),
+        (effective_voter.clone(), signer.clone()),
+    );
+}
+
+pub fn emit_proposal_scheduled(
+    env: &Env,
+    proposal_id: u64,
+    execution_time: u64,
+    unlock_ledger: u64,
+) {
+    env.events().publish(
+        (Symbol::new(env, "proposal_scheduled"), proposal_id),
+        (execution_time, unlock_ledger),
+    );
+}
+
 /// Emit when a proposal is rejected (enhanced: includes proposer)
 pub fn emit_proposal_rejected(env: &Env, proposal_id: u64, rejector: &Address, proposer: &Address) {
     env.events().publish(
@@ -118,6 +156,23 @@ pub fn emit_proposal_cancelled(
     env.events().publish(
         (Symbol::new(env, "proposal_cancelled"), proposal_id),
         (cancelled_by.clone(), reason.clone(), refunded_amount),
+    );
+}
+
+pub fn emit_scheduled_proposal_cancelled(env: &Env, proposal_id: u64, current_ledger: u64) {
+    env.events().publish(
+        (
+            Symbol::new(env, "scheduled_proposal_cancelled"),
+            proposal_id,
+        ),
+        current_ledger,
+    );
+}
+
+pub fn emit_proposal_vetoed(env: &Env, proposal_id: u64, vetoer: &Address) {
+    env.events().publish(
+        (Symbol::new(env, "proposal_vetoed"), proposal_id),
+        vetoer.clone(),
     );
 }
 
@@ -346,10 +401,8 @@ pub fn emit_hook_registered(env: &Env, hook: &Address, is_pre: bool) {
 
 /// Emit when a hook is removed
 pub fn emit_hook_removed(env: &Env, hook: &Address, is_pre: bool) {
-    env.events().publish(
-        (Symbol::new(env, "hook_removed"),),
-        (hook.clone(), is_pre),
-    );
+    env.events()
+        .publish((Symbol::new(env, "hook_removed"),), (hook.clone(), is_pre));
 }
 
 /// Emit when a hook is executed
@@ -870,13 +923,7 @@ pub fn emit_funding_round_completed(env: &Env, round_id: u64, total_released: i1
     );
 }
 
-/// Emit when recovery configuration is updated
-pub fn emit_recovery_config_updated(env: &Env, admin: &Address) {
-    env.events()
-        .publish((Symbol::new(env, "recovery_cfg_updated"),), admin.clone());
-}
-
-/// Emit when fee structure is updated
+/// Emit when fee structure configuration is updated
 pub fn emit_fee_structure_updated(env: &Env, admin: &Address, enabled: bool) {
     env.events().publish(
         (Symbol::new(env, "fee_structure_updated"),),
@@ -903,6 +950,32 @@ pub fn emit_fee_collected(
             fee,
             fee_bps,
             reputation_discount_applied,
+        ),
+    );
+}
+
+pub fn emit_dex_config_updated(env: &Env, admin: &Address) {
+    env.events()
+        .publish((Symbol::new(env, "dex_cfg_updated"),), admin.clone());
+}
+
+pub fn emit_stream_created(
+    env: &Env,
+    stream_id: u64,
+    sender: &Address,
+    recipient: &Address,
+    token: &Address,
+    total_amount: i128,
+    rate: i128,
+) {
+    env.events().publish(
+        (Symbol::new(env, "stream_created"), stream_id),
+        (
+            sender.clone(),
+            recipient.clone(),
+            token.clone(),
+            total_amount,
+            rate,
         ),
     );
 }

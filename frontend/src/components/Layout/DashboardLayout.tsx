@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
@@ -18,11 +18,8 @@ import {
   Files,
   RefreshCw,
   AlertCircle,
-feature/notification-and-comparison-tools
   Bell,
-
   HelpCircle,
-
 } from "lucide-react";
 import { useWallet } from "../../hooks/useWallet";
 import type { WalletAdapter } from "../../adapters";
@@ -30,14 +27,8 @@ import { WalletSwitcher } from "../WalletSwitcher";
 import CopyButton from '../CopyButton';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { LayoutErrorBoundary } from '../ErrorHandler';
- feature/notification-and-comparison-tools
 import NotificationCenter from '../NotificationCenter';
 import { useNotifications } from '../../context/NotificationContext';
-
-const DashboardLayout: React.FC = () => {
-  const { isConnected, address, network, connect, disconnect, availableWallets, selectedWalletId, switchWallet } = useWallet();
-  const { unreadCount } = useNotifications();
-
 import { OnboardingFlow } from "../OnboardingFlow";
 import { ProductTour } from "../ProductTour";
 import { HelpCenter } from "../HelpCenter";
@@ -49,15 +40,13 @@ import VoiceNavigation from "../VoiceNavigation";
 const DashboardLayout: React.FC = () => {
   const { t } = useTranslation();
   const { isConnected, address, network, connect, disconnect, availableWallets, selectedWalletId, switchWallet } = useWallet();
+  const { unreadCount } = useNotifications();
   const onboarding = useOnboarding();
-
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
- feature/notification-and-comparison-tools
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
-
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(false);
 
@@ -71,7 +60,6 @@ const DashboardLayout: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [onboarding.hasCompletedOnboarding, isConnected]);
-
 
   const shortenAddress = (addr: string, chars = 4) => {
     return `${addr.slice(0, chars)}...${addr.slice(-chars)}`;
@@ -144,53 +132,49 @@ const DashboardLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-<<<<<<< HEAD
             {/* Language Switcher */}
             <LanguageSwitcher />
             
-=======
- feature/notification-and-comparison-tools
             {/* Notification Bell */}
             <button
               onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative p-2 hover:bg-gray-700/50 rounded-lg transition-colors"
+              className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
               aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
             >
-              <Bell size={20} className="text-gray-400 hover:text-white transition-colors" />
+              <Bell size={20} className="text-slate-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white transition-colors" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
+            </button>
 
->>>>>>> da5f68c73360c19e64fd521b1be6e3fd0ae3c1aa
             {/* Help Button */}
             <button
               onClick={() => setIsHelpOpen(true)}
-              className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors text-gray-400 hover:text-white"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors text-slate-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white"
               aria-label={t('navigation.help')}
               title={t('navigation.help')}
             >
               <HelpCircle size={20} />
-
             </button>
 
             {isConnected && address ? (
               <div className="relative">
-                <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center space-x-3 bg-gray-800 border border-gray-700 hover:border-purple-500/50 px-3 py-2 md:px-4 rounded-xl transition-all duration-200">
+                <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center space-x-3 bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 hover:border-purple-500/50 px-3 py-2 md:px-4 rounded-xl transition-all duration-200">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center font-bold text-xs">
                     {address.slice(0, 2)}
                   </div>
                   <div className="hidden sm:block text-left">
-                    <p className="text-xs text-gray-400 leading-none mb-1">Stellar Account</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 leading-none mb-1">Stellar Account</p>
                     <p className="text-sm font-bold">{shortenAddress(address, 6)}</p>
                   </div>
                 </button>
                 {isUserMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setIsUserMenuOpen(false)}></div>
-                    <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl z-20 overflow-hidden">
-                      <div className="p-4 border-b border-gray-700 flex flex-col items-center">
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-2xl shadow-2xl z-20 overflow-hidden">
+                      <div className="p-4 border-b border-slate-200 dark:border-gray-700 flex flex-col items-center">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center font-bold text-lg mb-3 shadow-lg">
                           {address.slice(0, 2)}
                         </div>
@@ -241,7 +225,6 @@ const DashboardLayout: React.FC = () => {
         </main>
       </div>
 
-feature/notification-and-comparison-tools
       {/* Notification Center */}
       <NotificationCenter
         isOpen={isNotificationCenterOpen}
@@ -285,7 +268,6 @@ feature/notification-and-comparison-tools
           </div>
         </div>
       )}
-
     </div>
   );
 };

@@ -23,7 +23,6 @@ const DashboardBuilder: React.FC<DashboardBuilderProps> = ({ initialWidgets = []
   const [showLibrary, setShowLibrary] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showWidgetSystem, setShowWidgetSystem] = useState(false);
-  const [drillDownData, setDrillDownData] = useState<any>(null);
   const [drillDownData, setDrillDownData] = useState<{ widget: string; data: unknown } | null>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
 

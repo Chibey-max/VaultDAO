@@ -280,7 +280,9 @@ const WidgetMarketplace: React.FC<WidgetMarketplaceProps> = ({
                         {widget.manifest.metadata.name}
                       </h3>
                       {widget.verified && (
-                        <Award className="h-4 w-4 text-blue-400 flex-shrink-0" title="Verified" />
+                        <span title="Verified">
+                          <Award className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                        </span>
                       )}
                     </div>
                     <p className="text-xs text-gray-400">{widget.manifest.metadata.author}</p>
@@ -388,7 +390,9 @@ const WidgetDetailsModal: React.FC<WidgetDetailsModalProps> = ({
                   {widget.manifest.metadata.name}
                 </h2>
                 {widget.verified && (
-                  <Award className="h-5 w-5 text-blue-400" title="Verified" />
+                  <span title="Verified">
+                    <Award className="h-5 w-5 text-blue-400" />
+                  </span>
                 )}
               </div>
               <p className="text-gray-400">{widget.manifest.metadata.author}</p>

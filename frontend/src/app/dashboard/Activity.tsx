@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useWallet } from '../../hooks/useWallet';
 import ExportModal, { type ExportDatasets } from '../../components/modals/ExportModal';
 import { saveExportHistoryItem } from '../../utils/exportHistory';
 import AuditLog from '../../components/AuditLog';
 import TransactionHistory from '../../components/TransactionHistory';
 import type { VaultActivity } from '../../types/activity';
+import { useRealtime } from '../../contexts/RealtimeContext';
 
 /** Define an interface for the export metadata */
 interface ExportMeta {
@@ -19,6 +20,7 @@ type ActivityTab = 'activity' | 'audit';
 
 const Activity: React.FC = () => {
   const { address } = useWallet();
+  const { subscribe, updatePresence } = useRealtime();
   const [loadedTransactions, setLoadedTransactions] = useState<VaultActivity[]>([]);
   const [showExportModal, setShowExportModal] = useState(false);
   const [activeTab, setActiveTab] = useState<ActivityTab>('activity');
@@ -27,8 +29,8 @@ const Activity: React.FC = () => {
   useEffect(() => {
     updatePresence('online', 'Activity');
 
-    const unsubscribe = subscribe('activity_new', (data: ActivityLike) => {
-      setActivities((prev) => [data, ...prev]);
+    const unsubscribe = subscribe('activity_new', (data: VaultActivity) => {
+      setLoadedTransactions((prev) => [data, ...prev]);
     });
 
     return () => {

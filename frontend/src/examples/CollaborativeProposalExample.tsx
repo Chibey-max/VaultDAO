@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Users } from 'lucide-react';
 import CollaborativeProposalModal from '../components/modals/CollaborativeProposalModal';
 import NewProposalModal, { type NewProposalFormData } from '../components/modals/NewProposalModal';
-import { useWallet } from '../context/WalletContextProps';
+import { useWallet } from '../hooks/useWallet';
 import { useVaultContract } from '../hooks/useVaultContract';
 import { useToast } from '../hooks/useToast';
 

@@ -7089,7 +7089,6 @@ fn test_fees_collected_tracking() {
 
     let res = client.try_execute_proposal(&admin, &proposal_id);
     assert_eq!(res.err(), Some(Ok(VaultError::ProposalNotApproved)));
-}
 
 #[test]
 fn test_execution_rollback_restores_proposal_status_on_transfer_failure() {
@@ -7147,11 +7146,8 @@ fn test_execution_rollback_restores_proposal_status_on_transfer_failure() {
 }
 
 #[test]
-<<<<<<< HEAD
 fn test_weighted_voting_strategy() {
-=======
 fn test_execution_rollback_restores_priority_queue_on_transfer_failure() {
->>>>>>> e8f0c2c7a2d16d622769e1c4ceda0865df957a4c
     let env = Env::default();
     env.mock_all_auths();
 
@@ -7160,7 +7156,6 @@ fn test_execution_rollback_restores_priority_queue_on_transfer_failure() {
 
     let admin = Address::generate(&env);
     let signer1 = Address::generate(&env);
-<<<<<<< HEAD
     let signer2 = Address::generate(&env);
     let recipient = Address::generate(&env);
     let token = env
@@ -7170,15 +7165,12 @@ fn test_execution_rollback_restores_priority_queue_on_transfer_failure() {
     token_client.mint(&contract_id, &10_000);
     token_client.mint(&signer1, &600);
     token_client.mint(&signer2, &500);
-=======
     let user = Address::generate(&env);
     let invalid_token = Address::generate(&env); // Not a token contract; transfer should fail.
->>>>>>> e8f0c2c7a2d16d622769e1c4ceda0865df957a4c
 
     let mut signers = Vec::new(&env);
     signers.push_back(admin.clone());
     signers.push_back(signer1.clone());
-<<<<<<< HEAD
     signers.push_back(signer2.clone());
 
     let config = default_init_config(&env, signers, 3);
@@ -7330,7 +7322,6 @@ fn test_conviction_voting_strategy() {
     client.abstain_from_proposal(&signer3, &proposal_id);
     assert_eq!(client.get_proposal(&proposal_id).status, ProposalStatus::Approved);
 }
-=======
 
     let config = InitConfig {
         signers,
@@ -7370,4 +7361,3 @@ fn test_conviction_voting_strategy() {
 }
 
 
->>>>>>> e8f0c2c7a2d16d622769e1c4ceda0865df957a4c

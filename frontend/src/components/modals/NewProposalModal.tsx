@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Users } from 'lucide-react';
 import { useVaultContract } from '../../hooks/useVaultContract';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import FileUploader, { type UploadedAttachment } from '../FileUploader';
 import FormRenderer from '../FormRenderer';
 import VoiceToText from '../VoiceToText';
@@ -41,7 +41,6 @@ const NewProposalModal: React.FC<NewProposalModalProps> = ({
   onAttachmentsChange,
   onOpenTemplateSelector,
   onSaveAsTemplate,
-  onEnableCollaboration,
   useCustomForm = false,
   customFormConfig,
 }) => {

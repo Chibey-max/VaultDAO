@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
+import type { InputHTMLAttributes } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 
-interface VoiceToTextProps {
+interface VoiceToTextProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
 }
 
-export default function VoiceToText({ value, onChange, placeholder, className = '' }: VoiceToTextProps) {
+export default function VoiceToText({ value, onChange, placeholder, className = '', ...inputProps }: VoiceToTextProps) {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
@@ -72,6 +73,7 @@ export default function VoiceToText({ value, onChange, placeholder, className = 
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={`${className} pr-12`}
+        {...inputProps}
       />
       <button
         type="button"
