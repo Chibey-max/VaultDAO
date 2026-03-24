@@ -3,10 +3,7 @@
 use super::*;
 use crate::types::{AmountTier, RetryConfig, ThresholdStrategy, VelocityConfig};
 use crate::{InitConfig, VaultDAO, VaultDAOClient};
-use soroban_sdk::{
-    testutils::Address as _,
-    Address, Env, Symbol, Vec,
-};
+use soroban_sdk::{testutils::Address as _, Address, Env, Symbol, Vec};
 
 fn init_config(
     env: &Env,

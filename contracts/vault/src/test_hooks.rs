@@ -127,7 +127,7 @@ fn test_hook_unauthorized() {
     let hook = Address::generate(&env);
 
     client.initialize(&admin, &default_init_config(&env, &admin));
-    
+
     let res = client.try_register_pre_hook(&user, &hook);
     assert_eq!(res.err(), Some(Ok(VaultError::Unauthorized)));
 }
@@ -145,7 +145,7 @@ fn test_duplicate_hook() {
 
     client.initialize(&admin, &default_init_config(&env, &admin));
     client.register_pre_hook(&admin, &hook);
-    
+
     let res = client.try_register_pre_hook(&admin, &hook);
     assert_eq!(res.err(), Some(Ok(VaultError::SignerAlreadyExists)));
 }
